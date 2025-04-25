@@ -7,6 +7,9 @@ auth_token: "your_auth_token_here"
 # Tenant identifier for the API
 tenant: "your_tenant_id_here"
 
+# Number of IDs (rows) to process. Leave empty or null to process all.
+num_ids: 2
+
 # List of custom field names to update
 fields:
   - "Deployment Date"

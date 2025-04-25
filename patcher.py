@@ -42,6 +42,7 @@ CSV_PATH = config.get("csv_path")
 AUTH_TOKEN = config.get("auth_token")
 TENANT = config.get("tenant")
 FIELDS = config.get("fields")
+NUM_IDS = config.get("num_ids")
 
 missing = []
 if not CSV_PATH:
@@ -58,6 +59,10 @@ elif not isinstance(FIELDS, list) or not all(isinstance(fld, str) for fld in FIE
 
 if missing:
     logging.error(f"Missing required configuration key(s): {', '.join(missing)}")
+    sys.exit(1)
+
+if NUM_IDS is not None and (not isinstance(NUM_IDS, int) or NUM_IDS < 1):
+    logging.error("`num_ids` must be a positive integer if provided.")
     sys.exit(1)
 
 
@@ -79,6 +84,10 @@ except Exception as e:
     logging.error(f"Error processing CSV file '{CSV_PATH}': {e}")
     sys.exit(1)
 
+if NUM_IDS:
+    df = df.head(NUM_IDS)
+    logging.info(f"Limiting to first {NUM_IDS} use case(s) as specified.")
+
 # --- Headers for API call ---
 headers = {"Authorization": f"Bearer {AUTH_TOKEN}", "Content-Type": "application/json"}
 
@@ -91,7 +100,10 @@ for row_idx, row in tqdm(
     for field_name in FIELDS:
         field_value = row[field_name]
 
-        url = f"https://api.credo.ai/api/v2/{TENANT}/use_cases/{use_case_id}/custom_fields"
+        url = (
+            f"https://api.credo.ai/api/v2/{TENANT}"
+            f"/use_cases/{use_case_id}/custom_fields"
+        )
 
         payload = {
             "data": {
