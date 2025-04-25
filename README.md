@@ -103,6 +103,40 @@ Example:
 
 ---
 
+Here’s a clean, professional **"Authentication"** section you can add to your `README.md` based on the state of your script:
+
+---
+
+## 🔒 Authentication
+
+This script requires an **API token** for authentication with the Credo AI API. Instead of hardcoding the token directly into configuration files, the script securely loads it from a local `.env` file.
+
+### Setting Up Authentication
+1. Create a file named `.env` in the root directory of the project.
+2. Inside the `.env` file, add the following line:
+
+    ```bash
+    CREDO_AI_AUTH_TOKEN=your_actual_token_here
+    ```
+
+   Replace `your_actual_token_here` with your actual API token provided by Credo AI.
+
+3. Ensure that your `config.yaml` references this environment variable:
+
+    ```yaml
+    api_token: "${CREDO_AI_AUTH_TOKEN}"
+    ```
+
+The script will automatically load this environment variable at runtime using `python-dotenv`.
+If the token is missing or invalid, the script will exit with an error.
+
+### ⚠️ Security Note
+- **Never commit your `.env` file** to version control (e.g., GitHub).
+- Always ensure your `.gitignore` includes `.env` to protect sensitive credentials.
+
+---
+
+
 ## 🖥️ Usage
 
 ***Run this script in dry-run mode first (i.e. with `--dry-run`).***
