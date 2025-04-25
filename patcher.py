@@ -12,6 +12,7 @@ import requests
 import yaml
 from tqdm import tqdm
 
+
 # --- Custom TQDM-Compatible Logger ---
 class TqdmLoggingHandler(logging.Handler):
     def emit(self, record):
@@ -21,6 +22,7 @@ class TqdmLoggingHandler(logging.Handler):
             self.flush()
         except Exception:
             self.handleError(record)
+
 
 # --- CLI argument parsing ---
 parser = argparse.ArgumentParser(
@@ -54,7 +56,8 @@ except FileNotFoundError:
 CSV_PATH = config.get("csv_path")
 BASE_URL = config.get("base_url")
 API_TOKEN = config.get("api_token")
-# Expand environment variables in auth token
+
+# --- Expand environment variables in auth token ---
 if API_TOKEN and API_TOKEN.startswith("${") and API_TOKEN.endswith("}"):
     env_var = API_TOKEN[2:-1]
     API_TOKEN = os.getenv(env_var)
@@ -76,8 +79,12 @@ if not TENANT:
     missing.append("tenant")
 if not CUSTOM_FIELD_NAMES:
     missing.append("custom_field_names")
-elif not isinstance(CUSTOM_FIELD_NAMES, list) or not all(isinstance(fld, str) for fld in CUSTOM_FIELD_NAMES):
-    logging.error("The `custom_field_names` key must be a list of strings in the config file.")
+elif not isinstance(CUSTOM_FIELD_NAMES, list) or not all(
+    isinstance(fld, str) for fld in CUSTOM_FIELD_NAMES
+):
+    logging.error(
+        "The `custom_field_names` key must be a list of strings in the config file."
+    )
     sys.exit(1)
 
 if missing:
@@ -114,32 +121,43 @@ custom_field_ids = {}
 bearer_token = None
 # --- Exchange API token for Bearer token ---
 try:
-    response = requests.post(f"{BASE_URL}/auth/exchange", json={"api_token": API_TOKEN, "tenant": TENANT})
+    response = requests.post(
+        f"{BASE_URL}/auth/exchange", json={"api_token": API_TOKEN, "tenant": TENANT}
+    )
     if response.ok:
         logging.info(f"Successfully exchanged API token for Bearer token.")
-        bearer_token = response.json().get('access_token')
+        bearer_token = response.json().get("access_token")
     else:
-        logging.error(f"Failed to exchange API token for Bearer token: {response.status_code}")
+        logging.error(
+            f"Failed to exchange API token for Bearer token: {response.status_code}"
+        )
         sys.exit(1)
 except Exception as e:
     logging.error(f"Error exchanging API token for Bearer token: {e}")
     sys.exit(1)
 
 # --- Get custom field IDs ---
-try:    
+try:
     # --- Headers for API call ---
-    headers = {"Authorization": f"Bearer {bearer_token}", "Content-Type": "application/json"}
+    headers = {
+        "Authorization": f"Bearer {bearer_token}",
+        "Content-Type": "application/json",
+    }
 
     try:
-        response = requests.get(f"{BASE_URL}/api/v2/{TENANT}/custom_fields", headers=headers, params={"filter[target]": "use_case"})
+        response = requests.get(
+            f"{BASE_URL}/api/v2/{TENANT}/custom_fields",
+            headers=headers,
+            params={"filter[target]": "use_case"},
+        )
         if response.ok:  # `ok` is bool for status less than 400, NOT == 200.
-            logging.info(
-                f"Successfully fetched custom fields for tenant {TENANT}."
-            )
+            logging.info(f"Successfully fetched custom fields for tenant {TENANT}.")
 
             # --- Get custom fields (of type "use_case") for tenant ---
             custom_fields_json_data = response.json()["data"]
-            logging.info(f"Found {len(custom_fields_json_data)} custom fields for tenant {TENANT}.")
+            logging.info(
+                f"Found {len(custom_fields_json_data)} custom fields for tenant {TENANT}."
+            )
 
             # for each field name in CUSTOM_FIELD_NAMES, find the corresponding custom field id and save it in a map
             for field_name in CUSTOM_FIELD_NAMES:
@@ -147,22 +165,26 @@ try:
                 for item in custom_fields_json_data:
                     if item["attributes"]["name"] == field_name:
                         custom_field_ids[field_name] = item["id"]
-                        logging.info(f"Found custom field ID for {field_name}: {item['id']}")
+                        logging.info(
+                            f"Found custom field ID for {field_name}: {item['id']}"
+                        )
                         field_found = True
                         break
                 if not field_found:
-                    logging.warning(f"Custom field '{field_name}' not found for tenant {TENANT}. This field will be skipped.")
+                    logging.warning(
+                        f"Custom field '{field_name}' not found for tenant {TENANT}. This field will be skipped."
+                    )
 
-            logging.info(f"Found {len(custom_field_ids)} custom field IDs for tenant {TENANT} based on the CUSTOM_FIELD_NAMES list.")
+            logging.info(
+                f"Found {len(custom_field_ids)} custom field IDs for tenant {TENANT} based on the CUSTOM_FIELD_NAMES list."
+            )
         else:
             logging.error(
                 f"Failed to fetch custom fields for tenant {TENANT} ({response.status_code})"
             )
             sys.exit(1)
     except Exception as e:
-        logging.error(
-            f"Failed to fetch custom fields for tenant {TENANT}: {e}"
-        )
+        logging.error(f"Failed to fetch custom fields for tenant {TENANT}: {e}")
         sys.exit(1)
 except Exception as e:
     logging.error(f"Error getting custom field IDs: {e}")
@@ -202,9 +224,11 @@ for row_idx, row in tqdm(
     for field_name in CUSTOM_FIELD_NAMES:
         # Skip if field wasn't found in the API response
         if field_name not in custom_field_ids:
-            logging.warning(f"Skipping field '{field_name}' for use case {use_case_id} - field not found in API response")
+            logging.warning(
+                f"Skipping field '{field_name}' for use case {use_case_id} - field not found in API response"
+            )
             continue
-            
+
         field_value = row[field_name]
         custom_field_id = custom_field_ids[field_name]
         url = f"{BASE_URL}/api/v2/{TENANT}/use_cases/{use_case_id}/custom_fields"
@@ -212,7 +236,10 @@ for row_idx, row in tqdm(
         payload = {
             "data": {
                 "type": "use_case_custom_fields",
-                "attributes": {"custom_field_id": custom_field_id, "value": field_value},
+                "attributes": {
+                    "custom_field_id": custom_field_id,
+                    "value": field_value,
+                },
             }
         }
 
