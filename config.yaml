@@ -4,8 +4,8 @@ csv_path: "DEV-3023_dev_test.csv"
 # API URL
 api_url: "https://dev-api.dev.credoai.net/api/v2"
 
-# API authentication token
-auth_token: "your_auth_token_here"
+# API authentication token (read from environment variable)
+auth_token: "${CREDO_AI_AUTH_TOKEN}"
 
 # Tenant identifier for the API
 tenant: "credoai"
@@ -16,3 +16,4 @@ num_ids:
 # List of custom field names to update
 custom_field_names:
   - "DEV-3023"
+  - "DEV-3023 A"

@@ -3,6 +3,7 @@ import json
 import logging
 import sys
 import time
+import os
 from datetime import datetime
 from pathlib import Path
 
@@ -53,6 +54,13 @@ except FileNotFoundError:
 CSV_PATH = config.get("csv_path")
 API_URL = config.get("api_url")
 AUTH_TOKEN = config.get("auth_token")
+# Expand environment variables in auth token
+if AUTH_TOKEN and AUTH_TOKEN.startswith("${") and AUTH_TOKEN.endswith("}"):
+    env_var = AUTH_TOKEN[2:-1]
+    AUTH_TOKEN = os.getenv(env_var)
+    if not AUTH_TOKEN:
+        logging.error(f"Environment variable {env_var} not set")
+        sys.exit(1)
 TENANT = config.get("tenant")
 CUSTOM_FIELD_NAMES = config.get("custom_field_names")
 NUM_IDS = config.get("num_ids")
@@ -121,10 +129,15 @@ try:
 
             # for each field name in CUSTOM_FIELD_NAMES, find the corresponding custom field id and save it in a map
             for field_name in CUSTOM_FIELD_NAMES:
+                field_found = False
                 for item in custom_fields_json_data:
                     if item["attributes"]["name"] == field_name:
                         custom_field_ids[field_name] = item["id"]
                         logging.info(f"Found custom field ID for {field_name}: {item['id']}")
+                        field_found = True
+                        break
+                if not field_found:
+                    logging.warning(f"Custom field '{field_name}' not found for tenant {TENANT}. This field will be skipped.")
 
             logging.info(f"Found {len(custom_field_ids)} custom field IDs for tenant {TENANT} based on the CUSTOM_FIELD_NAMES list.")
         else:
@@ -171,6 +184,11 @@ for row_idx, row in tqdm(
     use_case_id = row["use_case_id"]
 
     for field_name in CUSTOM_FIELD_NAMES:
+        # Skip if field wasn't found in the API response
+        if field_name not in custom_field_ids:
+            logging.warning(f"Skipping field '{field_name}' for use case {use_case_id} - field not found in API response")
+            continue
+            
         field_value = row[field_name]
         custom_field_id = custom_field_ids[field_name]
         url = f"{API_URL}/{TENANT}/use_cases/{use_case_id}/custom_fields"
