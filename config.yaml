@@ -1,0 +1,12 @@
+# Path to the CSV file
+csv_path: "path/to/your_file.csv"
+
+# API authentication token
+auth_token: "your_auth_token_here"
+
+# Tenant identifier for the API
+tenant: "your_tenant_id_here"
+
+# List of custom field names to update
+fields:
+  - "Deployment Date"
