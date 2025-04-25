@@ -52,13 +52,13 @@ except FileNotFoundError:
 
 # --- Perform basic input validation ---
 CSV_PATH = config.get("csv_path")
-API_URL = config.get("api_url")
-AUTH_TOKEN = config.get("auth_token")
+BASE_URL = config.get("base_url")
+API_TOKEN = config.get("api_token")
 # Expand environment variables in auth token
-if AUTH_TOKEN and AUTH_TOKEN.startswith("${") and AUTH_TOKEN.endswith("}"):
-    env_var = AUTH_TOKEN[2:-1]
-    AUTH_TOKEN = os.getenv(env_var)
-    if not AUTH_TOKEN:
+if API_TOKEN and API_TOKEN.startswith("${") and API_TOKEN.endswith("}"):
+    env_var = API_TOKEN[2:-1]
+    API_TOKEN = os.getenv(env_var)
+    if not API_TOKEN:
         logging.error(f"Environment variable {env_var} not set")
         sys.exit(1)
 TENANT = config.get("tenant")
@@ -68,10 +68,10 @@ NUM_IDS = config.get("num_ids")
 missing = []
 if not CSV_PATH:
     missing.append("csv_path")
-if not API_URL:
-    missing.append("api_url")
-if not AUTH_TOKEN:
-    missing.append("auth_token")
+if not BASE_URL:
+    missing.append("base_url")
+if not API_TOKEN:
+    missing.append("api_token")
 if not TENANT:
     missing.append("tenant")
 if not CUSTOM_FIELD_NAMES:
@@ -111,13 +111,27 @@ logging.basicConfig(
 )
 
 custom_field_ids = {}
+bearer_token = None
+# --- Exchange API token for Bearer token ---
+try:
+    response = requests.post(f"{BASE_URL}/auth/exchange", json={"api_token": API_TOKEN, "tenant": TENANT})
+    if response.ok:
+        logging.info(f"Successfully exchanged API token for Bearer token.")
+        bearer_token = response.json().get('access_token')
+    else:
+        logging.error(f"Failed to exchange API token for Bearer token: {response.status_code}")
+        sys.exit(1)
+except Exception as e:
+    logging.error(f"Error exchanging API token for Bearer token: {e}")
+    sys.exit(1)
 
+# --- Get custom field IDs ---
 try:    
     # --- Headers for API call ---
-    headers = {"Authorization": f"Bearer {AUTH_TOKEN}", "Content-Type": "application/json"}
+    headers = {"Authorization": f"Bearer {bearer_token}", "Content-Type": "application/json"}
 
     try:
-        response = requests.get(f"{API_URL}/{TENANT}/custom_fields", headers=headers, params={"filter[target]": "use_case"})
+        response = requests.get(f"{BASE_URL}/api/v2/{TENANT}/custom_fields", headers=headers, params={"filter[target]": "use_case"})
         if response.ok:  # `ok` is bool for status less than 400, NOT == 200.
             logging.info(
                 f"Successfully fetched custom fields for tenant {TENANT}."
@@ -141,13 +155,15 @@ try:
 
             logging.info(f"Found {len(custom_field_ids)} custom field IDs for tenant {TENANT} based on the CUSTOM_FIELD_NAMES list.")
         else:
-            logging.warning(
-                f"Failed to fetch custom fields for tenant {TENANT} ({response.status_code}) | {response.text}"
+            logging.error(
+                f"Failed to fetch custom fields for tenant {TENANT} ({response.status_code})"
             )
+            sys.exit(1)
     except Exception as e:
         logging.error(
-            f"Error getting custom field IDs: {e}"
+            f"Failed to fetch custom fields for tenant {TENANT}: {e}"
         )
+        sys.exit(1)
 except Exception as e:
     logging.error(f"Error getting custom field IDs: {e}")
     sys.exit(1)
@@ -191,7 +207,7 @@ for row_idx, row in tqdm(
             
         field_value = row[field_name]
         custom_field_id = custom_field_ids[field_name]
-        url = f"{API_URL}/{TENANT}/use_cases/{use_case_id}/custom_fields"
+        url = f"{BASE_URL}/api/v2/{TENANT}/use_cases/{use_case_id}/custom_fields"
 
         payload = {
             "data": {
