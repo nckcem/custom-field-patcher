@@ -1,11 +1,11 @@
 # Path to the CSV file
 csv_path: "data/dev-use-cases.csv"
 
-# API URL
-api_url: "https://dev-api.dev.credoai.net/api/v2"
+# Base URL
+base_url: "https://dev-api.dev.credoai.net"
 
 # API authentication token
-auth_token: "your_auth_token_here"
+api_token: "your_api_token_here"
 
 # Tenant identifier for the API
 tenant: "credoaics"
