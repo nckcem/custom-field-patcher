@@ -60,11 +60,14 @@ csv_path: "path/to/your_file.csv"
 # Base URL
 base_url: "https://api.your-url.com"
 
-# API authentication token
-api_token: "your_api_token_here"
+# API authentication token (which should be read from an environment variable)
+api_token: "${CREDO_AI_API_TOKEN}"
 
 # Tenant identifier for the API
 tenant: "your_tenant_id_here"
+
+# Number of IDs (rows) to process. Leave empty or null to process all.
+num_ids:
 
 # List of custom field names to update
 custom_field_names:
@@ -78,6 +81,7 @@ custom_field_names:
 - `base_url (str)`: Base URL to CredoAI API/app server
 - `api_token (str)`: Bearer token used to authenticate with the Credo AI API.
 - `tenant (str)`: The organization or workspace identifier used to form the API path.
+- `num_ids (Union[int, NoneType])`: The number of use cases to process, starting from the first row of data the input CSV (i.e., row 1, since row 0 is the header).
 - `custom_field_names (List[str])`: A list of field names you intend to update. These fields must exist as column headers in the CSV.
 
 ---
