@@ -1,15 +1,19 @@
 # Path to the CSV file
-csv_path: "path/to/your_file.csv"
+csv_path: "DEV-3023_dev_test.csv"
 
-# API authentication token
-auth_token: "your_auth_token_here"
+# API URL
+api_url: "https://dev-api.dev.credoai.net/api/v2"
+
+# API authentication token (read from environment variable)
+auth_token: "${CREDO_AI_AUTH_TOKEN}"
 
 # Tenant identifier for the API
-tenant: "your_tenant_id_here"
+tenant: "credoai"
 
 # Number of IDs (rows) to process. Leave empty or null to process all.
-num_ids: 2
+num_ids: 
 
 # List of custom field names to update
-fields:
-  - "Deployment Date"
+custom_field_names:
+  - "DEV-3023"
+  - "DEV-3023 A"
