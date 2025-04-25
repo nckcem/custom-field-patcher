@@ -57,6 +57,9 @@ Create a `config.yaml` file with the following structure:
 # Path to the CSV file
 csv_path: "path/to/your_file.csv"
 
+# URL base
+base_url: "https://api.your-url.com/api/v2"
+
 # API authentication token
 auth_token: "your_auth_token_here"
 
@@ -72,6 +75,7 @@ fields:
 
 ### 📖 Key Definitions:
 - `csv_path (str)`: Path to the input CSV file.
+- `api_url (str)`: Base URL to the CredoAI API
 - `auth_token (str)`: Bearer token used to authenticate with the Credo AI API.
 - `tenant (str)`: The organization or workspace identifier used to form the API path.
 - `fields (List[str])`: A list of field names you intend to update. These fields must exist as column headers in the CSV.

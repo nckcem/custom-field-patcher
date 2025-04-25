@@ -51,6 +51,7 @@ except FileNotFoundError:
 
 # --- Perform basic input validation ---
 CSV_PATH = config.get("csv_path")
+API_URL = config.get("api_url")
 AUTH_TOKEN = config.get("auth_token")
 TENANT = config.get("tenant")
 FIELDS = config.get("fields")
@@ -59,6 +60,8 @@ NUM_IDS = config.get("num_ids")
 missing = []
 if not CSV_PATH:
     missing.append("csv_path")
+if not API_URL:
+    missing.append("api_url")
 if not AUTH_TOKEN:
     missing.append("auth_token")
 if not TENANT:
@@ -99,6 +102,18 @@ logging.basicConfig(
     handlers=[file_handler, tqdm_handler],
 )
 
+# --- Headers for API call ---
+headers = {"Authorization": f"Bearer {AUTH_TOKEN}", "Content-Type": "application/json"}
+
+# --- Get use case custom fields for tenant ---
+custom_field_id_json = requests.get(
+    f"{API_URL}/{TENANT}/custom_fields", headers=headers, params={"filter[target]": "use_case"}
+).json()["data"]
+
+# filter the custom field id for the field in the FIELDS list whose name matches the field name
+
+custom_field_id = [item["id"] for item in custom_field_id_json if item["attributes"]["name"] == FIELDS[0]]
+
 # --- Read, clean, and validate CSV ---
 try:
     df = pd.read_csv(CSV_PATH).fillna("").rename(columns={"id": "use_case_id"})
@@ -123,9 +138,6 @@ except Exception as e:
     logging.error(f"Error processing CSV file: {CSV_PATH}\n{e}")
     sys.exit(1)
 
-# --- Headers for API call ---
-headers = {"Authorization": f"Bearer {AUTH_TOKEN}", "Content-Type": "application/json"}
-
 # --- Loop over each use case (row) ---
 for row_idx, row in tqdm(
     df.iterrows(), total=len(df), desc="Patching use cases", unit="use_case"
@@ -135,10 +147,7 @@ for row_idx, row in tqdm(
     for field_name in FIELDS:
         field_value = row[field_name]
 
-        url = (
-            f"https://api.credo.ai/api/v2/{TENANT}"
-            f"/use_cases/{use_case_id}/custom_fields"
-        )
+        url = f"{API_URL}/{TENANT}/use_cases/{use_case_id}/custom_fields"
 
         payload = {
             "data": {
