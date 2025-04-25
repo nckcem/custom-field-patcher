@@ -3,11 +3,23 @@ import json
 import logging
 import sys
 import time
+from datetime import datetime
+from pathlib import Path
 
 import pandas as pd
 import requests
 import yaml
 from tqdm import tqdm
+
+# --- Custom TQDM-Compatible Logger ---
+class TqdmLoggingHandler(logging.Handler):
+    def emit(self, record):
+        try:
+            msg = self.format(record)
+            tqdm.write(msg)
+            self.flush()
+        except Exception:
+            self.handleError(record)
 
 # --- CLI argument parsing ---
 parser = argparse.ArgumentParser(
@@ -34,7 +46,7 @@ try:
     with open(CONFIG_PATH, "r") as fin:
         config = yaml.safe_load(fin)
 except FileNotFoundError:
-    logging.error(f"Config file `{CONFIG_PATH}` not found.")
+    logging.error(f"Config file not found: {CONFIG_PATH}")
     sys.exit(1)
 
 # --- Perform basic input validation ---
@@ -66,11 +78,25 @@ if NUM_IDS is not None and (not isinstance(NUM_IDS, int) or NUM_IDS < 1):
     sys.exit(1)
 
 
-# --- Logging setup ---
+# --- Setup logging ---
+log_dir = Path("logs")
+log_dir.mkdir(parents=True, exist_ok=True)
+
+log_file = log_dir / f"{datetime.now():%Y%m%d}-patcher-log.log"
+
+formatter = logging.Formatter(
+    "%(asctime)s | %(levelname)s: %(message)s", "%Y-%m-%d %H:%M:%S"
+)
+
+file_handler = logging.FileHandler(log_file)
+file_handler.setFormatter(formatter)
+
+tqdm_handler = TqdmLoggingHandler()
+tqdm_handler.setFormatter(formatter)
+
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s | %(levelname)s: %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
+    handlers=[file_handler, tqdm_handler],
 )
 
 # --- Read, clean, and validate CSV ---
@@ -80,13 +106,22 @@ try:
     missing = required_columns - set(df.columns)
     if missing:
         raise ValueError(f"Missing required column(s): {', '.join(missing)}")
-except Exception as e:
-    logging.error(f"Error processing CSV file '{CSV_PATH}': {e}")
-    sys.exit(1)
 
-if NUM_IDS:
-    df = df.head(NUM_IDS)
-    logging.info(f"Limiting to first {NUM_IDS} use case(s) as specified.")
+    if NUM_IDS:
+        df = df.head(NUM_IDS)
+        logging.info(f"Limiting to first {NUM_IDS} use case(s) as specified.")
+
+    # Force fields to be strings.
+    for field in FIELDS:
+        try:
+            df[field] = df[field].astype(str)
+        except Exception as e:
+            logging.error(f"Failed to cast field `{field}` to string: {e}")
+            sys.exit(1)
+
+except Exception as e:
+    logging.error(f"Error processing CSV file: {CSV_PATH}\n{e}")
+    sys.exit(1)
 
 # --- Headers for API call ---
 headers = {"Authorization": f"Bearer {AUTH_TOKEN}", "Content-Type": "application/json"}
@@ -114,9 +149,11 @@ for row_idx, row in tqdm(
 
         if DRY_RUN:
             logging.info(
-                f"[DRY RUN] [Row {row_idx}] Would PATCH to: {url}\n"
-                f"Field: {field_name} | Value: {field_value}\n"
-                f"Payload:\n{json.dumps(payload, indent=2)}\n"
+                f"[DRY RUN] [Row {row_idx +  2} in CSV]"
+                f"\nWould PATCH to: {url}"
+                f"\nField (repr): {repr(field_name)}"
+                f"\nValue (repr): {repr(field_value)}"
+                f"\nPayload:\n{json.dumps(payload, indent=2)}\n"
             )
             continue
 

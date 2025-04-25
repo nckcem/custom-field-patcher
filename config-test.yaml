@@ -1,0 +1,15 @@
+# Path to the CSV file
+csv_path: "data/dev-use-cases.csv"
+
+# API authentication token
+auth_token: "your_auth_token_here"
+
+# Tenant identifier for the API
+tenant: "credoaics"
+
+# Number of IDs (rows) to process. Leave empty or null to process all.
+num_ids: 2
+
+# List of custom field names to update
+fields:
+  - "Business Type"

@@ -13,6 +13,7 @@ For each use case (row) in the provided CSV:
 - The script identifies the use case by its `use_case_id` (an alias for the default `id` column).
 - For each field specified in the configuration, it:
   - Extracts the corresponding value from the CSV row.
+  - ***Casts that value as a string***.
   - Sends a PATCH request(s) to update the custom field(s) for that specific use case.
 
 This allows for batch updating multiple custom fields across many use cases in an automated and reliable manner. For example, if each use case had 3 custom fields to update, the script would update `field_1`, `field_2`, and `field_3` on `use_case_1` before moving to `use_case_2`.
