@@ -61,7 +61,8 @@ def get_bearer_token(base_url: str, api_token: str, tenant: str) -> str:
         response = requests.post(url, json=payload)
         if not response.ok:
             fatal_error(
-                f"Failed to exchange API token for Bearer token ({response.status_code})"
+                "Failed to exchange API token for Bearer token"
+                f" ({response.status_code})"
             )
 
         bearer_token = response.json().get("access_token")
@@ -78,7 +79,12 @@ def get_bearer_token(base_url: str, api_token: str, tenant: str) -> str:
 def get_custom_field_ids(
     base_url: str, tenant: str, headers: Dict[str, str], custom_field_names: List[str]
 ) -> Dict[str, str]:
-    """Fetch the custom field IDs for the specified field names from the Credo AI API.
+    """Get backend UUIDs (IDs) for specified custom field names from the Credo AI API.
+
+    Custom fields in the Credo AI platform must be referenced by their backend UUIDs,
+    not by their display names, when patching use case metadata. This function fetches
+    all available custom fields for the tenant and maps the requested field names to
+    their corresponding IDs.
 
     Args:
         base_url (str): The base URL of the Credo AI API (e.g., https://api.credo.ai).
@@ -87,12 +93,10 @@ def get_custom_field_ids(
         custom_field_names (List[str]): List of custom field names to find IDs for.
 
     Returns:
-        Dict[str, str]: A mapping of field names to their corresponding custom field
-            IDs.
+        (Dict[str, str]): Mapping of field names to their backend custom field UUIDs.
 
     Raises:
-        SystemExit: If the API request fails or if a critical error occurs during
-            processing.
+        SystemExit: If the API request fails or if a critical error occurs.
     """
     url = f"{base_url}/api/v2/{tenant}/custom_fields"
     try:
@@ -101,12 +105,14 @@ def get_custom_field_ids(
         )
         if not response.ok:
             fatal_error(
-                f"Failed to fetch custom fields for tenant {tenant} ({response.status_code})"
+                f"Failed to fetch custom fields for tenant {tenant}"
+                f" ({response.status_code})"
             )
 
         custom_fields_data = response.json()["data"]
         logging.info(
-            f"Successfully fetched {len(custom_fields_data)} custom fields for tenant {tenant}."
+            f"Successfully fetched {len(custom_fields_data)} custom fields for tenant"
+            f" {tenant}."
         )
 
         # Map field names to their IDs.
@@ -119,15 +125,18 @@ def get_custom_field_ids(
             if field_name in available_fields:
                 field_id_map[field_name] = available_fields[field_name]
                 logging.info(
-                    f"Found custom field ID for '{field_name}': {available_fields[field_name]}"
+                    "Found custom field ID for"
+                    f" '{field_name}': {available_fields[field_name]}"
                 )
             else:
                 logging.warning(
-                    f"Custom field '{field_name}' not found for tenant {tenant}. Skipping."
+                    f"Custom field '{field_name}' not found for tenant {tenant}."
+                    " Skipping."
                 )
 
         logging.info(
-            f"Mapped {len(field_id_map)} custom field(s) based on the provided list."
+            f"Mapped {len(field_id_map)}/{len(custom_field_names)} custom field(s)"
+            " from the provided list."
         )
         return field_id_map
 
@@ -183,7 +192,7 @@ def read_and_prepare_csv(
 def validate_and_expand_config(
     config: Dict[str, Any],
 ) -> Tuple[str, str, str, str, List[str], Optional[int]]:
-    """Validate required configuration keys and expand environment variables if needed.
+    """Validate required config keys and expand environment variables if needed.
 
     Args:
         config (Dict[str, Any]): Parsed YAML configuration dictionary.
@@ -229,7 +238,7 @@ def validate_and_expand_config(
 
     # Validate types.
     if not isinstance(custom_field_names, list) or not all(
-        isinstance(f, str) for f in custom_field_names
+        isinstance(cfname, str) for cfname in custom_field_names
     ):
         fatal_error(
             "The `custom_field_names` key must be a list of strings in the config file."

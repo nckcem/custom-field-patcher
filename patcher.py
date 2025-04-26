@@ -18,17 +18,13 @@ def setup_logging() -> None:
     log_dir = Path("logs")
     log_dir.mkdir(parents=True, exist_ok=True)
     log_file = log_dir / f"{datetime.now():%Y%m%d}-patcher-log.log"
-
     formatter = logging.Formatter(
         "%(asctime)s | %(levelname)s: %(message)s", "%Y-%m-%d %H:%M:%S"
     )
-
     file_handler = logging.FileHandler(log_file)
     file_handler.setFormatter(formatter)
-
     tqdm_handler = utils.TqdmLoggingHandler()
     tqdm_handler.setFormatter(formatter)
-
     logging.basicConfig(
         level=logging.INFO,
         handlers=[file_handler, tqdm_handler],
@@ -48,7 +44,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "config_path",
-        nargs="?",
+        nargs="?",  # ? indicates the argument is optional.
         default="config.yaml",
         help="Path to the YAML config file (default: config.yaml)",
     )
@@ -61,7 +57,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
-    """Main script execution flow."""
+    """Execute the main use case metadata patching script."""
 
     load_dotenv()  # Load env vars from a .env file (if it exists) into `os.environ`.
     setup_logging()  # Set up logging.
@@ -92,7 +88,7 @@ def main() -> None:
         "Content-Type": "application/json",
     }
 
-    # Get custom field UUIDs.
+    # Get custom field UUIDs to construct a `field_name: custom_field_id` mapping.
     custom_field_ids = (
         {field_name: field_name for field_name in CUSTOM_FIELD_NAMES}
         if DRY_RUN
@@ -142,8 +138,8 @@ def main() -> None:
                 response = requests.patch(url, headers=HEADERS, json=payload)
                 if response.ok:
                     logging.info(
-                        f"[Row {row_idx + 2}] PATCH success | use_case_id={use_case_id},"
-                        " field={field_name}"
+                        f"[Row {row_idx + 2}] PATCH success |"
+                        f" use_case_id={use_case_id}, field={field_name}"
                     )
                 else:
                     logging.warning(

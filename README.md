@@ -101,11 +101,13 @@ Example:
 | ...                      | ...              | ...           | ...  | ...         |
 | Q5bGNjz8HDzAhg4ndE2pum   | 2025-02-29       | IOPS          | ...  | TRUE        |
 
+***It doesn't matter if the CSV has additional columns beyond those required.***
+
 ---
 
 ## 🔒 Authentication
 
-This script requires an **API token** for authentication with the Credo AI API. Instead of hardcoding the token directly into configuration files, the script securely loads it from a local `.env` file.
+This script requires an ***API token*** for authentication with the Credo AI API. Instead of hardcoding the token directly into configuration files, the script securely loads it from a local `.env` file.
 
 ### Setting Up Authentication
 1. Create a file named `.env` in the root directory of the project.
@@ -152,7 +154,7 @@ To run the script and perform ***real PATCH operations***:
   python patcher.py config.yaml
   ```
 ### 🎛️ Default Config
-***If no config file is specified***, it will default to `config.yaml`:
+***If no config file is provided***, the script defaults to using `config.yaml`:
 -
   ```bash
   python patcher.py --dry-run
@@ -164,7 +166,7 @@ To run the script and perform ***real PATCH operations***:
 
 1. **Validation**: The script checks that *all* fields listed in the config exist in the CSV.
 2. **Progress Tracking**: Displays a dynamic progress bar for real-time feedback.
-3. **Error Handling**: Logs clear error messages for missing config values, CSV read errors, and API call failures.
+3. **Error Handling**: Logs clear error messages (to `./logs`) for missing config values, CSV read errors, and API call failures.
 4. **Request Throttling**: Introduces a small wait time (`0.5` seconds) between API calls to prevent server overload.
 
 ---
