@@ -74,15 +74,33 @@ custom_field_names:
   - "Deployment Date"
   - "Business Type"
   - ...
+  - "Is a Vendor"
 ```
 
-### 📖 Key Definitions:
-- `csv_path (str)`: Path to the input CSV file.
-- `base_url (str)`: Base URL to CredoAI API/app server
-- `api_token (str)`: Bearer token used to authenticate with the Credo AI API.
-- `tenant (str)`: The organization or workspace identifier used to form the API path.
-- `num_ids (Union[int, NoneType])`: The number of use cases to process, starting from the first row of data the input CSV (i.e., row 2, since row 1 is the header).
-- `custom_field_names (List[str])`: A list of field names you intend to update. These fields must exist as column headers in the CSV.
+---
+
+### 📖 Config Key Definitions
+
+- **`csv_path`** (`str`)
+  Path to the input CSV file.
+
+- **`base_url`** (`str`)
+  Base URL of the Credo AI API server.
+
+- **`api_token`** (`str`)
+  API token used for authentication (referenced via environment variable).
+
+- **`tenant`** (`str`)
+  Tenant or workspace identifier used in API endpoints.
+
+- **`num_ids`** (`Optional[int]`)
+  Number of use cases to process.
+  If omitted (`null`, `~`, or blank), all rows will be processed.
+  Rows are processed starting from the first data row (after the header).
+
+- **`custom_field_names`** (`List[str]`)
+  List of custom field names to update.
+  These field names must exactly match column headers in the input CSV.
 
 ---
 
@@ -117,7 +135,7 @@ This script requires an ***API token*** for authentication with the Credo AI API
     CREDO_AI_AUTH_TOKEN=your_actual_token_here
     ```
 
-   Replace `your_actual_token_here` with your actual API token provided by Credo AI.
+   Replace `your_actual_token_here` with your actual API token provided by Credo AI, not encased in double-quotes (e.g., `abc123`, not `"abc123"`).
 
 3. Ensure that your `config.yaml` references this environment variable:
 
@@ -129,8 +147,8 @@ The script will automatically load this environment variable at runtime using `p
 If the token is missing or invalid, the script will exit with an error.
 
 ### ⚠️ Security Note
-- **Never commit your `.env` file** to version control (e.g., GitHub).
-- Always ensure your `.gitignore` includes `.env` to protect sensitive credentials.
+- ***Never commit your `.env` file*** to version control (e.g., GitHub).
+- ***Always ensure your `.gitignore` includes `.env`*** to protect sensitive credentials.
 
 ---
 
@@ -138,6 +156,7 @@ If the token is missing or invalid, the script will exit with an error.
 ## 🖥️ Usage
 
 ***Run this script in dry-run mode first (i.e. with `--dry-run`).***
+
 In dry-run mode, the script logs the intended PATCH requests, including URLs and payloads, *without* sending them to the server.
 
 ### 🧪 Dry-run Mode
@@ -154,7 +173,9 @@ To run the script and perform ***real PATCH operations***:
   python patcher.py config.yaml
   ```
 ### 🎛️ Default Config
-***If no config file is provided***, the script defaults to using `config.yaml`:
+
+***If no config file is provided, the script defaults to using `config.yaml`:***
+
 -
   ```bash
   python patcher.py --dry-run
