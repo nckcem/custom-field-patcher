@@ -81,7 +81,7 @@ custom_field_names:
 - `base_url (str)`: Base URL to CredoAI API/app server
 - `api_token (str)`: Bearer token used to authenticate with the Credo AI API.
 - `tenant (str)`: The organization or workspace identifier used to form the API path.
-- `num_ids (Union[int, NoneType])`: The number of use cases to process, starting from the first row of data the input CSV (i.e., row 1, since row 0 is the header).
+- `num_ids (Union[int, NoneType])`: The number of use cases to process, starting from the first row of data the input CSV (i.e., row 2, since row 1 is the header).
 - `custom_field_names (List[str])`: A list of field names you intend to update. These fields must exist as column headers in the CSV.
 
 ---
@@ -100,10 +100,6 @@ Example:
 | Q5bGNjz8HDzAhg4ndE2pum   | 2025-01-15       | Commercial    | ...  | FALSE       |
 | ...                      | ...              | ...           | ...  | ...         |
 | Q5bGNjz8HDzAhg4ndE2pum   | 2025-02-29       | IOPS          | ...  | TRUE        |
-
----
-
-Here’s a clean, professional **"Authentication"** section you can add to your `README.md` based on the state of your script:
 
 ---
 
