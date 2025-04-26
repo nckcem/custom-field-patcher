@@ -1,3 +1,4 @@
+<!-- omit in toc -->
 # Credo AI Use Case Custom Field Patcher
 
 Given a ***list of custom field names***, this utility ***updates their values*** for ***corresponding use cases*** in the Credo AI platform. It operates in 3 phases:
@@ -6,28 +7,25 @@ Given a ***list of custom field names***, this utility ***updates their values**
   3. ***Submit PATCH requests*** to update custom field values for specified use cases through the Credo AI API.
 
 ---
-
+<!-- omit in toc -->
 ## 🗂️ Table of Contents
-
 <!-- TOC start (generated with https://github.com/derlin/bitdowntoc) -->
 
-- [Credo AI Use Case Custom Field Patcher](#credo-ai-use-case-custom-field-patcher)
-  - [🗂️ Table of Contents](#️-table-of-contents)
-  - [🗺️ Overview](#️-overview)
-  - [⚡ Quickstart](#-quickstart)
-  - [🧰 Requirements](#-requirements)
-  - [⚙️ Configuration](#️-configuration)
-    - [📖 Config Key Definitions](#-config-key-definitions)
-  - [🧮 CSV Format](#-csv-format)
-  - [🔒 Authentication](#-authentication)
-    - [Setting Up Authentication](#setting-up-authentication)
-    - [⚠️ Security Note](#️-security-note)
-  - [🖥️ Usage](#️-usage)
-    - [🧪 Dry-run Mode](#-dry-run-mode)
-    - [✅ Basic Run](#-basic-run)
-    - [🎛️ Default Config](#️-default-config)
-  - [🎯 Key Script Characteristics](#-key-script-characteristics)
-  - [📞 Support](#-support)
+- [🗺️ Overview](#️-overview)
+- [⚡ Quickstart](#-quickstart)
+- [🧰 Requirements](#-requirements)
+- [⚙️ Configuration](#️-configuration)
+  - [📖 Config Key Definitions](#-config-key-definitions)
+- [🧮 CSV Format](#-csv-format)
+- [🔒 Authentication](#-authentication)
+  - [Setting Up Authentication](#setting-up-authentication)
+  - [⚠️ Security Note](#️-security-note)
+- [🖥️ Usage](#️-usage)
+  - [🧪 Dry-run Mode](#-dry-run-mode)
+  - [✅ Basic Run](#-basic-run)
+  - [🎛️ Default Config](#️-default-config)
+- [🎯 Key Script Characteristics](#-key-script-characteristics)
+- [📞 Support](#-support)
 
 <!-- TOC end -->
 
