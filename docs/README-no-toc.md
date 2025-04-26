@@ -9,30 +9,11 @@ Given a ***list of custom field names***, this utility ***updates their values**
 ---
 <!-- omit in toc -->
 ## 🗂️ Table of Contents
-<!-- TOC start (generated with https://github.com/derlin/bitdowntoc) -->
-
-- [🗺️ Overview](#️-overview)
-- [⚡ Quickstart](#-quickstart)
-- [🧰 Requirements](#-requirements)
-- [⚙️ Configuration](#️-configuration)
-  - [📖 Config Key Definitions](#-config-key-definitions)
-- [🧮 CSV Format](#-csv-format)
-- [🔒 Authentication](#-authentication)
-  - [Setting Up Authentication](#setting-up-authentication)
-  - [⚠️ Security Note](#️-security-note)
-- [🖥️ Usage](#️-usage)
-  - [🧪 Dry-run Mode](#-dry-run-mode)
-  - [✅ Basic Run](#-basic-run)
-  - [🎛️ Default Config](#️-default-config)
-- [🎯 Key Script Characteristics](#-key-script-characteristics)
-- [📞 Support](#-support)
-
-<!-- TOC end -->
+[TOC]
 
 ---
 
-<!-- TOC --><a name="-overview"></a>
-## 🗺️ Overview
+## 1. Overview 🗺️
 
 For each use case (row) in the provided CSV:
 - The script identifies the use case by its `use_case_id` (an alias for the default `id` column).
@@ -45,8 +26,7 @@ This allows for batch updating multiple custom fields across many use cases in a
 
 ---
 
-<!-- TOC --><a name="-quickstart"></a>
-## ⚡ Quickstart
+## 2. Quickstart ⚡
 1. Install `Python 3.13.2`.
 2. Install Git Bash (Windows only). On macOS/Linux, use the native terminal.
 3. Open an IDE (e.g., VS Code).
@@ -64,8 +44,7 @@ This allows for batch updating multiple custom fields across many use cases in a
 
 ---
 
-<!-- TOC --><a name="-requirements"></a>
-## 🧰 Requirements
+## 3. Requirements 🧰
 
 - Python `3.13.2`
 - Install required packages with:
@@ -76,8 +55,7 @@ This allows for batch updating multiple custom fields across many use cases in a
 
 ---
 
-<!-- TOC --><a name="-configuration"></a>
-## ⚙️ Configuration
+## 4. Configuration ⚙️
 
 Create a `config.yaml` file with the following structure:
 
@@ -107,8 +85,7 @@ custom_field_names:
 
 ---
 
-<!-- TOC --><a name="-config-key-definitions"></a>
-### 📖 Config Key Definitions
+### 4.1 Config Key Definitions 🗝️
 
 - **`csv_path`** (`str`)
   Path to the input CSV file.
@@ -133,8 +110,7 @@ custom_field_names:
 
 ---
 
-<!-- TOC --><a name="-csv-format"></a>
-## 🧮 CSV Format
+## 5. CSV Format 🧮
 
 The CSV input file must include:
 - An `id` column (which is renamed to `use_case_id` in the code for clarity).
@@ -153,13 +129,11 @@ Example:
 
 ---
 
-<!-- TOC --><a name="-authentication"></a>
-## 🔒 Authentication
+## 6. Authentication 🔒
 
 This script requires an ***API token*** for authentication with the Credo AI API. Instead of hardcoding the token directly into configuration files, the script securely loads it from a local `.env` file.
 
-<!-- TOC --><a name="setting-up-authentication"></a>
-### Setting Up Authentication
+### 6.1 Setting Up Env Auth 🛡️
 1. Create a file named `.env` in the root directory of the project.
 2. Inside the `.env` file, add the following line:
 
@@ -178,38 +152,33 @@ This script requires an ***API token*** for authentication with the Credo AI API
 The script will automatically load this environment variable at runtime using `python-dotenv`.
 If the token is missing or invalid, the script will exit with an error.
 
-<!-- TOC --><a name="-security-note"></a>
-### ⚠️ Security Note
+### 6.2 Security Note ⚠️
 - ***Never commit your `.env` file*** to version control (e.g., GitHub).
 - ***Always ensure your `.gitignore` includes `.env`*** to protect sensitive credentials.
 
 ---
 
 
-<!-- TOC --><a name="-usage"></a>
-## 🖥️ Usage
+## 7. Usage 🖥️
 
 ***Run this script in dry-run mode first (i.e. with `--dry-run`).***
 
 In dry-run mode, the script logs the intended PATCH requests, including URLs and payloads, *without* sending them to the server.
 
-<!-- TOC --><a name="-dry-run-mode"></a>
-### 🧪 Dry-run Mode
+### 7.1 Dry-run Mode 🧪
 
 To simulate the API requests ***without making actual changes (for validation/testing)***:
   ```bash
   python patcher.py config.yaml --dry-run
   ```
 
-<!-- TOC --><a name="-basic-run"></a>
-### ✅ Basic Run
+### 7.2 Basic Run ✅
 
 To run the script and perform ***real PATCH operations***:
   ```bash
   python patcher.py config.yaml
   ```
-<!-- TOC --><a name="-default-config"></a>
-### 🎛️ Default Config
+### 7.3 Default Config 🎛️
 
 ***If no config file is provided, the script defaults to using `config.yaml`:***
 
@@ -220,8 +189,7 @@ To run the script and perform ***real PATCH operations***:
 
 ---
 
-<!-- TOC --><a name="-key-script-characteristics"></a>
-## 🎯 Key Script Characteristics
+## 8. Key Script Characteristics 🎯
 
 1. **Validation**: The script checks that *all* fields listed in the config exist in the CSV.
 2. **Progress Tracking**: Displays a dynamic progress bar for real-time feedback.
@@ -230,8 +198,7 @@ To run the script and perform ***real PATCH operations***:
 
 ---
 
-<!-- TOC --><a name="-support"></a>
-## 📞 Support
+## 9. Support 📞
 
 For questions or technical issues, please contact your Credo AI technical representative.
 
