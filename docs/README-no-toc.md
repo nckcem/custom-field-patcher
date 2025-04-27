@@ -16,13 +16,24 @@ Given a ***list of custom field names***, this utility ***updates their values**
 ## 1. Overview 🗺️
 
 For each use case (row) in the provided CSV:
-- The script identifies the use case by its `use_case_id` (an alias for the default `id` column).
+- The script identifies the use case by its value under the `id` column.
 - For each field specified in the configuration, it:
   - Extracts the corresponding value from the CSV row.
   - ***Casts that value as a string***.
   - Sends a PATCH request(s) to update the custom field(s) for that specific use case.
 
 This allows for batch updating multiple custom fields across many use cases in an automated and reliable manner. For example, if each use case had 3 custom fields to update, the script would update `field_1`, `field_2`, and `field_3` on `use_case_1` before moving to `use_case_2`.
+
+### 1.1 Key Characteristics — *Please Review* 🎯
+
+> ***These key characteristics describe how the script operates and what to expect during execution. Please review them carefully before running the script.***
+
+1. **Field Validation**: Ensures *all* fields listed in the config exist in the CSV.
+2. **Progress Tracking**: Displays a dynamic progress bar for real-time feedback.
+3. **Error Handling**: Logs clear errors (to `./logs`) for config, CSV, and API issues.
+4. **Request Throttling**: Waits `0.5` seconds between API calls to avoid server overload.
+5. ⚠️ **String Enforcement**: Casts all field values to strings; blank values become empty strings.
+6. ⚠️ **Consistent Overwrites**: Sends all values (including blanks) in PATCH requests to guarantee updates.
 
 ---
 
@@ -32,7 +43,7 @@ This allows for batch updating multiple custom fields across many use cases in a
 3. Open an IDE (e.g., VS Code).
 4. Clone this repository.
 5. Set up a virtual environment.
-   1. Ensure `virtualenv` is installed: `pip install virtualenv`.
+   1. Ensure `virtualenv` is installed: `pip install virtualenv`
    2. Create a virtual environment: `virtualenv venv --python=python3.13.2`
    3. Activate the newly-created virtual environment:
       1. On macOS/Linux: `venv/bin/activate`
@@ -66,7 +77,7 @@ csv_path: "path/to/your_file.csv"
 # Base URL
 base_url: "https://api.your-url.com"
 
-# API authentication token (which should be read from an environment variable)
+# API authentication token (referenced from an ENV file)
 api_token: "${CREDO_AI_API_TOKEN}"
 
 # Tenant identifier for the API
@@ -125,7 +136,7 @@ Example:
 | ...                      | ...              | ...           | ...  | ...         |
 | Q5bGNjz8HDzAhg4ndE2pum   | 2025-02-29       | IOPS          | ...  | TRUE        |
 
-***It doesn't matter if the CSV has additional columns beyond those required.***
+> ***It doesn't matter if the CSV has additional columns beyond those required.***
 
 ---
 
@@ -182,23 +193,13 @@ To run the script and perform ***real PATCH operations***:
 
 ***If no config file is provided, the script defaults to using `config.yaml`:***
 
--
   ```bash
   python patcher.py --dry-run
   ```
 
 ---
 
-## 8. Key Script Characteristics 🎯
-
-1. **Validation**: The script checks that *all* fields listed in the config exist in the CSV.
-2. **Progress Tracking**: Displays a dynamic progress bar for real-time feedback.
-3. **Error Handling**: Logs clear error messages (to `./logs`) for missing config values, CSV read errors, and API call failures.
-4. **Request Throttling**: Introduces a small wait time (`0.5` seconds) between API calls to prevent server overload.
-
----
-
-## 9. Support 📞
+## 8. Support 📞
 
 For questions or technical issues, please contact your Credo AI technical representative.
 
